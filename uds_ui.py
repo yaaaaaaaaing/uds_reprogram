@@ -21,7 +21,7 @@ def run_tool():
     print("flash driver sig path is %s" %(flashdrv_sig_path.get()))
     print("target hex path is %s" %(target_hex_path.get()))
     print("target sig path is %s" %(target_sig_path.get()))
-    uds_program_main(req_id,resp_id,fd_flag,dll_path.get(),flashdrv_hex_path.get(),flashdrv_sig_path.get(),target_hex_path.get(),target_sig_path.get())
+    uds_program_main(req_id,resp_id,fd_flag,frame_len,dll_path.get(),flashdrv_hex_path.get(),flashdrv_sig_path.get(),target_hex_path.get(),target_sig_path.get())
 
 def choose_dll_file():
     path = filedialog.askopenfilename(title="选择文件")

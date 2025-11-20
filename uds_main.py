@@ -1,7 +1,7 @@
 from hex_analysis import *
 from uds_process import *
    
-def uds_program_main(req_id,resp_id,fd_flag,dll_file,flashdrv_file_path,flashdrv_signiture_file,target_file_path,target_signiture_file):
+def uds_program_main(req_id,resp_id,fd_flag,frame_max_len,dll_file,flashdrv_file_path,flashdrv_signiture_file,target_file_path,target_signiture_file):
     bus_pt = can.interface.Bus(bustype='vector', channel= 0,fd=True,data_bitrate=2000000, bitrate=500000,sjw_abr= 2, tseg1_abr= 7, tseg2_abr= 2, sam_abr= 1, sjw_dbr= 2, tseg1_dbr= 7, tseg2_dbr= 2, output_mode= 1,app_name="pythonUds")
     hex_flashdrv_segment_list = load_hex_file(flashdrv_file_path)
     uds_flashdrv_processer = uds_process(bus_pt,req_id,resp_id,fd_flag,frame_max_len,dll_file,hex_flashdrv_segment_list,flashdrv_signiture_file,True)
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     target_signiture_file = "./input/P0334985 XX APP.sig"
     dll_file = "./input/PEU_seed&key.dll"
     
-    uds_program_main(req_id,resp_id,fd_flag,dll_file,flashdrv_file_path,flashdrv_signiture_file,target_file_path,target_signiture_file)
+    uds_program_main(req_id,resp_id,fd_flag,frame_max_len,dll_file,flashdrv_file_path,flashdrv_signiture_file,target_file_path,target_signiture_file)
 
 # 目前response识别只能识别byte1(目前不支持需要长度超过8的uds resp内容)
 # 目前刷写只支持0x44的报文格式
