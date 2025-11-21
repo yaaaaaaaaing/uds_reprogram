@@ -2,19 +2,18 @@ from hex_analysis import *
 from uds_process import *
    
 def uds_program_main(req_id,resp_id,fd_flag,frame_max_len,dll_file,flashdrv_file_path,flashdrv_signiture_file,target_file_path,target_signiture_file):
-    bus_pt = can.interface.Bus(bustype='vector', channel= 0,fd=True,data_bitrate=2000000, bitrate=500000,sjw_abr= 2, tseg1_abr= 7, tseg2_abr= 2, sam_abr= 1, sjw_dbr= 2, tseg1_dbr= 7, tseg2_dbr= 2, output_mode= 1,app_name="pythonUds")
     hex_flashdrv_segment_list = load_hex_file(flashdrv_file_path)
-    uds_flashdrv_processer = uds_process(bus_pt,req_id,resp_id,fd_flag,frame_max_len,dll_file,hex_flashdrv_segment_list,flashdrv_signiture_file,True)
+    uds_flashdrv_processer = uds_process(req_id,resp_id,fd_flag,frame_max_len,dll_file,hex_flashdrv_segment_list,flashdrv_signiture_file,True)
     uds_flashdrv_processer.uds_reprogramming_pre_process()
     uds_flashdrv_processer.uds_reprogramming_process()
     uds_flashdrv_processer.uds_reprogramming_post_process()
 
     hex_target_segment_list = load_hex_file(target_file_path)
-    uds_target_processer = uds_process(bus_pt,req_id,resp_id,fd_flag,frame_max_len,dll_file,hex_target_segment_list,target_signiture_file,False)
+    uds_target_processer = uds_process(req_id,resp_id,fd_flag,frame_max_len,dll_file,hex_target_segment_list,target_signiture_file,False)
     uds_target_processer.uds_reprogramming_process()
     uds_target_processer.uds_reprogramming_post_process()
 
-    bus_pt.shutdown()
+    uds_target_processer.shutdown()
 
 
 if __name__ == "__main__":

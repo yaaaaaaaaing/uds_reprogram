@@ -1,8 +1,8 @@
 from uds_program import *
 
 class uds_process:
-    def __init__(self,bus,req_id,resp_id,fd_flag,frame_max_len,dll_file,segment_list,signiture_file,flash_drv_flag):
-        self.uds_requester = uds_request(bus,req_id,resp_id,fd_flag,frame_max_len,dll_file)
+    def __init__(self,req_id,resp_id,fd_flag,frame_max_len,dll_file,segment_list,signiture_file,flash_drv_flag):
+        self.uds_requester = uds_request(req_id,resp_id,fd_flag,frame_max_len,dll_file)
         self.segment_list = segment_list
         self.signiture_file = signiture_file
         self.flash_drv_flag = flash_drv_flag
@@ -39,3 +39,5 @@ class uds_process:
         self.uds_requester.uds_routine_control_request(0x01,0x0202,signiture_data_list)
         if self.flash_drv_flag == False:
             self.uds_requester.uds_routine_control_request(0x01,0xFF01,[])
+    def shutdown(self):
+        self.uds_requester.shutdown()
