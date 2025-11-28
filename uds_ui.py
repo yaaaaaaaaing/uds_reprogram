@@ -21,7 +21,20 @@ def run_tool():
     print("flash driver sig path is %s" %(flashdrv_sig_path.get()))
     print("target hex path is %s" %(target_hex_path.get()))
     print("target sig path is %s" %(target_sig_path.get()))
-    uds_program_main(req_id,resp_id,fd_flag,frame_len,dll_path.get(),flashdrv_hex_path.get(),flashdrv_sig_path.get(),target_hex_path.get(),target_sig_path.get())
+    uds_program_init(req_id,resp_id,fd_flag,frame_len,dll_path.get())
+    uds_program_main(flashdrv_hex_path.get(),flashdrv_sig_path.get(),target_hex_path.get(),target_sig_path.get())
+
+def run_stayinboot():
+    req_id = int(entry_req_id.get(),16)
+    resp_id = int(entry_resp_id.get(),16)
+    can_type = can_type_var.get()
+    if can_type == "classic":
+        fd_flag = False
+    elif can_type == "canfd":
+        fd_flag= True
+    frame_len = int(frame_len_var.get())
+    uds_program_init(req_id,resp_id,fd_flag,frame_len,dll_path.get())
+    uds_program_stayinboot()
 
 def choose_dll_file():
     path = filedialog.askopenfilename(title="选择文件")
@@ -106,6 +119,7 @@ tk.Button(root, text="浏览", command=choose_target_sig_file).grid(row=8, colum
 target_sig_display = tk.Label(root, text="未选择文件", fg="gray")
 target_sig_display.grid(row=8, column=2, sticky="w", padx=10)
 
-tk.Button(root, text="运行", command=run_tool).grid(row=10, column=0, columnspan=2, pady=10)
+tk.Button(root, text="运行刷写", command=run_tool).grid(row=10, column=0, columnspan=2, pady=10)
+tk.Button(root, text="运行stayinboot", command=run_stayinboot).grid(row=11, column=0, columnspan=2, pady=10)
 
 root.mainloop()

@@ -15,7 +15,7 @@ class uds_cantp:
         if not os.path.exists(log_path):
             os.makedirs(log_path)
         self.log = open(os.path.join(log_path,"log_"+log_time+".txt"),"w+")
-    def uds_cantp_resp_recv(self,req_data):
+    def uds_cantp_resp_recv(self,req_data,flag_timeout_detection):
         start_time = time.time()
         while True:
             msg_recv = self.bus.recv(timeout = 0.005)
@@ -36,8 +36,10 @@ class uds_cantp:
                     return False, resp_data
                 elif resp_data[0] == 0x7F and resp_data[2] == 0x78:
                     start_time = time.time()
-            if time.time() - start_time >= 5.0:
-                raise TimeoutError("Response Timeout!")
+            if flag_timeout_detection == True:
+                if time.time() - start_time >= 5.0:
+                    self.log.close()
+                    raise TimeoutError("Response Timeout!")
     def uds_cantp_fc_recv(self):
         start_time = time.time()
         while True:
@@ -50,8 +52,10 @@ class uds_cantp:
                 if resp_data[0] == 0x30:
                     return resp_data[2]
                 else:
+                    self.log.close()
                     raise ValueError("Flow Control Frame Receive Error!")
             if time.time() - start_time >= 5.0:
+                self.log.close()
                 raise TimeoutError("Response Timeout!")
     def uds_cantp_single_frame_send(self,req_data):
         data_send = req_data[:]
@@ -112,14 +116,19 @@ class uds_cantp:
             max_single_frame_len = self.frame_max_len - 1
         if len(req_data) <= max_single_frame_len:
             self.uds_cantp_single_frame_send(req_data)
-            ret_value,resp_data = self.uds_cantp_resp_recv(req_data)
+            ret_value,resp_data = self.uds_cantp_resp_recv(req_data,True)
         else:
             cons_frame_index = self.uds_cantp_first_frame_send(req_data)
             cf_gap_timer = self.uds_cantp_fc_recv()
             self.uds_cantp_cons_frame_send(req_data,cons_frame_index,cf_gap_timer)
-            ret_value,resp_data = self.uds_cantp_resp_recv(req_data)
+            ret_value,resp_data = self.uds_cantp_resp_recv(req_data,True)
 
         return ret_value,resp_data
+
+    def uds_cantp_send_periodic(self,req_data,period):
+        msg_snapshot_req = can.Message(arbitration_id=self.req_id, data=req_data, is_extended_id=False,is_fd=self.fd_flag)
+        bus_period_task = self.bus.send_periodic(msg_snapshot_req,period)
+        return bus_period_task
     
     def bus_shutdown(self):
         self.bus.shutdown()

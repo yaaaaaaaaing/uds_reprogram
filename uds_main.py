@@ -1,10 +1,18 @@
 from hex_analysis import *
 from uds_process import *
-   
-def uds_program_main(req_id,resp_id,fd_flag,frame_max_len,dll_file,flashdrv_file_path,flashdrv_signiture_file,target_file_path,target_signiture_file):
+
+bus_period_task = None
+
+def uds_program_init(req_id,resp_id,fd_flag,frame_max_len,dll_file):
+    global uds_requester, cantp_sender,g_uds_main_init,bus_period_task
+    if bus_period_task is not None:
+        bus_period_task.stop()
+        time.sleep(1)  # 等待任务停止
     cantp_sender = uds_cantp(req_id,resp_id,fd_flag,frame_max_len)
     uds_requester = uds_request(req_id,resp_id,fd_flag,frame_max_len,dll_file,cantp_sender)
-    
+   
+def uds_program_main(flashdrv_file_path,flashdrv_signiture_file,target_file_path,target_signiture_file):
+    global uds_requester, cantp_sender
     hex_flashdrv_segment_list = load_hex_file(flashdrv_file_path)
     uds_flashdrv_processer = uds_process(hex_flashdrv_segment_list,flashdrv_signiture_file,True,uds_requester)
     uds_flashdrv_processer.uds_reprogramming_pre_process()
@@ -19,6 +27,12 @@ def uds_program_main(req_id,resp_id,fd_flag,frame_max_len,dll_file,flashdrv_file
     uds_target_processer.shutdown()
     print("flash successfully!")
 
+def uds_program_stayinboot():
+    global uds_requester, cantp_sender,bus_period_task
+    req_data = [0x04, 0x31, 0x01, 0xf5, 0x18, 0x00, 0x00, 0x00]
+    bus_period_task = cantp_sender.uds_cantp_send_periodic(req_data,0.01)
+    ret_value,resp_data = cantp_sender.uds_cantp_resp_recv(req_data,False)
+    print("stayinboot send success")
 
 if __name__ == "__main__":
     can_type = input("Please input can type(C(Classic) or F(CanFD)):")
