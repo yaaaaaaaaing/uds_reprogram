@@ -54,13 +54,13 @@ def generate_key(seed_data,level,dll_file):
 
 
 class uds_request:
-    def __init__(self,req_id,resp_id,fd_flag,frame_max_len,dll_file):
+    def __init__(self,req_id,resp_id,fd_flag,frame_max_len,dll_file,cantp_sender):
         self.req_id = req_id
         self.resp_id = resp_id
         self.fd_flag = fd_flag
         self.frame_max_len = frame_max_len
         self.dll_file = dll_file
-        self.cantp_sender = uds_cantp(req_id,resp_id,fd_flag,frame_max_len)
+        self.cantp_sender = cantp_sender
     def uds_session_request(self,session_type):
         req_data = [0x10,session_type]
         ret_value,resp_data = self.cantp_sender.uds_cantp_send(req_data)

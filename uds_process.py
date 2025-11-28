@@ -1,8 +1,8 @@
 from uds_program import *
 
 class uds_process:
-    def __init__(self,req_id,resp_id,fd_flag,frame_max_len,dll_file,segment_list,signiture_file,flash_drv_flag):
-        self.uds_requester = uds_request(req_id,resp_id,fd_flag,frame_max_len,dll_file)
+    def __init__(self,segment_list,signiture_file,flash_drv_flag,uds_requester):
+        self.uds_requester = uds_requester
         self.segment_list = segment_list
         self.signiture_file = signiture_file
         self.flash_drv_flag = flash_drv_flag

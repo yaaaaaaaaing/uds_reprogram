@@ -1,16 +1,20 @@
 import can
 import time
 from datetime import datetime
+import os
 
 class uds_cantp:
     def __init__(self,req_id,resp_id,fd_flag,frame_max_len):
-        self.bus = can.interface.Bus(bustype='vector', channel= 0,fd=True,data_bitrate=2000000, bitrate=500000,sjw_abr= 2, tseg1_abr= 7, tseg2_abr= 2, sam_abr= 1, sjw_dbr= 2, tseg1_dbr= 7, tseg2_dbr= 2, output_mode= 1,app_name="pythonUds")
+        self.bus = can.interface.Bus(interface='vector', channel= 0,fd=True,data_bitrate=2000000, bitrate=500000,sjw_abr= 2, tseg1_abr= 7, tseg2_abr= 2, sam_abr= 1, sjw_dbr= 2, tseg1_dbr= 7, tseg2_dbr= 2, output_mode= 1,app_name="pythonUds")
         self.req_id = req_id
         self.resp_id = resp_id
         self.fd_flag = fd_flag
         self.frame_max_len = frame_max_len
-        log_name = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3].replace(":","_").replace("-","_").replace(" ","_")
-        self.log = open("./log/log_" + log_name + ".txt","w+")
+        log_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3].replace(":","_").replace("-","_").replace(" ","_")
+        log_path = "./log/"
+        if not os.path.exists(log_path):
+            os.makedirs(log_path)
+        self.log = open(os.path.join(log_path,"log_"+log_time+".txt"),"w+")
     def uds_cantp_resp_recv(self,req_data):
         start_time = time.time()
         while True:
