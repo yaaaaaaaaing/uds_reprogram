@@ -3,12 +3,12 @@ from uds_process import *
 
 bus_period_task = None
 
-def uds_program_init(req_id,resp_id,fd_flag,frame_max_len,dll_file):
+def uds_program_init(req_id,resp_id,req_id_app,resp_id_app,fd_flag,frame_max_len,dll_file):
     global uds_requester, cantp_sender,g_uds_main_init,bus_period_task
     if bus_period_task is not None:
         bus_period_task.stop()
         time.sleep(1)  # 等待任务停止
-    cantp_sender = uds_cantp(req_id,resp_id,fd_flag,frame_max_len)
+    cantp_sender = uds_cantp(req_id,resp_id,req_id_app,resp_id_app,fd_flag,frame_max_len)
     uds_requester = uds_request(req_id,resp_id,fd_flag,frame_max_len,dll_file,cantp_sender)
    
 def uds_program_main(flashdrv_file_path,flashdrv_signiture_file,target_file_path,target_signiture_file):
@@ -30,7 +30,7 @@ def uds_program_main(flashdrv_file_path,flashdrv_signiture_file,target_file_path
 def uds_program_stayinboot():
     global uds_requester, cantp_sender,bus_period_task
     req_data = [0x04, 0x31, 0x01, 0xf5, 0x18, 0x00, 0x00, 0x00]
-    bus_period_task = cantp_sender.uds_cantp_send_periodic(req_data,0.01)
+    bus_period_task = cantp_sender.uds_cantp_send_periodic(req_data,0.01,False)
     ret_value,resp_data = cantp_sender.uds_cantp_resp_recv(req_data,False)
     print("stayinboot send success")
 

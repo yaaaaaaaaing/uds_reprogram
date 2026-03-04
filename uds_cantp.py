@@ -4,10 +4,15 @@ from datetime import datetime
 import os
 
 class uds_cantp:
-    def __init__(self,req_id,resp_id,fd_flag,frame_max_len):
+    def __init__(self,req_id_boot,resp_id_boot,req_id_app,resp_id_app,fd_flag,frame_max_len):
         self.bus = can.interface.Bus(interface='vector', channel= 0,fd=True,data_bitrate=2000000, bitrate=500000,sjw_abr= 2, tseg1_abr= 7, tseg2_abr= 2, sam_abr= 1, sjw_dbr= 2, tseg1_dbr= 7, tseg2_dbr= 2, output_mode= 1,app_name="pythonUds")
-        self.req_id = req_id
-        self.resp_id = resp_id
+        self.req_id_boot = req_id_boot
+        self.resp_id_boot = resp_id_boot
+        self.req_id_app = req_id_app
+        self.resp_id_app = resp_id_app
+        # use boot id as default req/resp frame id
+        self.req_id = req_id_boot
+        self.resp_id = resp_id_boot
         self.fd_flag = fd_flag
         self.frame_max_len = frame_max_len
         log_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3].replace(":","_").replace("-","_").replace(" ","_")
@@ -109,7 +114,13 @@ class uds_cantp:
                 cons_frame_cnt = 0x20
             time.sleep(cf_gap_timer/1000.0)
 
-    def uds_cantp_send(self,req_data):
+    def uds_cantp_send(self,req_data,app_flag):
+        if app_flag:
+            self.req_id = self.req_id_app
+            self.resp_id = self.resp_id_app
+        else:
+            self.req_id = self.req_id_boot
+            self.resp_id = self.resp_id_boot
         if self.frame_max_len > 16:
             max_single_frame_len = self.frame_max_len - 2
         else:   
@@ -125,7 +136,13 @@ class uds_cantp:
 
         return ret_value,resp_data
 
-    def uds_cantp_send_periodic(self,req_data,period):
+    def uds_cantp_send_periodic(self,req_data,period,app_flag):
+        if app_flag:
+            self.req_id = self.req_id_app
+            self.resp_id = self.resp_id_app
+        else:
+            self.req_id = self.req_id_boot
+            self.resp_id = self.resp_id_boot
         msg_snapshot_req = can.Message(arbitration_id=self.req_id, data=req_data, is_extended_id=False,is_fd=self.fd_flag)
         bus_period_task = self.bus.send_periodic(msg_snapshot_req,period)
         return bus_period_task

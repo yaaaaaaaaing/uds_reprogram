@@ -7,11 +7,11 @@ class uds_process:
         self.signiture_file = signiture_file
         self.flash_drv_flag = flash_drv_flag
     def uds_reprogramming_pre_process(self): 
-        self.uds_requester.uds_session_request(0x03)
-        self.uds_requester.uds_session_request(0x02)
-        self.uds_requester.uds_security_access_request(0x07)
-        self.uds_requester.uds_security_access_key_send(0x07)
-        self.uds_requester.uds_write_data_request(0xF15a,[0x25,0x11,0x11,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09])
+        self.uds_requester.uds_session_request(0x03,True)
+        self.uds_requester.uds_session_request(0x02,True)
+        self.uds_requester.uds_security_access_request(0x07,False)
+        self.uds_requester.uds_security_access_key_send(0x07,False)
+        self.uds_requester.uds_write_data_request(0xF15a,[0x25,0x11,0x11,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09],False)
     def uds_reprogramming_process(self):
         erase_start_address = 0xFFFFFFFF
         erase_end_address = 0x00000000
@@ -23,7 +23,7 @@ class uds_process:
         erase_data_list += [(erase_start_address >> 24) & 0xFF,(erase_start_address >> 16) & 0xFF,(erase_start_address >> 8) & 0xFF,(erase_start_address) & 0xFF]
         erase_data_list += [(erase_length >> 24) & 0xFF,(erase_length >> 16) & 0xFF,(erase_length >> 8) & 0xFF,(erase_length) & 0xFF]
         if self.flash_drv_flag == False:
-            self.uds_requester.uds_routine_control_request(0x01,0xFF00,erase_data_list)
+            self.uds_requester.uds_routine_control_request(0x01,0xFF00,erase_data_list,False)
         for segment in self.segment_list:
             address = segment['start_address']
             length = segment['end_address'] - segment['start_address']
@@ -36,8 +36,8 @@ class uds_process:
             signiture_str = sig_file.read().decode('utf-8')
             signiture_str_list = signiture_str.split(",")
             signiture_data_list = [int(x, 16) for x in signiture_str_list]
-        self.uds_requester.uds_routine_control_request(0x01,0x0202,signiture_data_list)
+        self.uds_requester.uds_routine_control_request(0x01,0x0202,signiture_data_list,False)
         if self.flash_drv_flag == False:
-            self.uds_requester.uds_routine_control_request(0x01,0xFF01,[])
+            self.uds_requester.uds_routine_control_request(0x01,0xFF01,[],False)
     def shutdown(self):
         self.uds_requester.shutdown()
